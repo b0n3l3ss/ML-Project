@@ -139,3 +139,4 @@ housing_num = housing.select_dtypes(include=[np.number])
 imputer.fit(housing_num)
 
 print(imputer.statistics_)
+print(housing_num.median().values)
