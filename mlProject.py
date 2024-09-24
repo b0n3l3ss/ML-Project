@@ -16,6 +16,7 @@ from pandas.plotting import scatter_matrix
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler
 
 def load_housing_data():
     tarball_path = Path("datasets/housing.tgz")
@@ -161,3 +162,6 @@ print(ordinal_encoder.categories_)
 
 cat_encoder = OneHotEncoder()
 housing_cat_1hot = cat_encoder.fit_transform(housing_cat)
+
+min_max_scalar = MinMaxScaler(feature_range=(-1,1))
+housing_num_min_max_scaled = min_max_scalar.fit_transform(housing_num)
