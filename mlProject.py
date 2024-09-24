@@ -14,6 +14,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedShuffleSplit
 from pandas.plotting import scatter_matrix
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 def load_housing_data():
     tarball_path = Path("datasets/housing.tgz")
@@ -118,10 +120,10 @@ corr_matrix = housing.corr(numeric_only=True)
 
 attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
 scatter_matrix(housing[attributes], figsize=(9,6))
-plt.show()
+#plt.show()
 
 housing.plot(kind="scatter", x="median_income", y="median_house_value", alpha=0.1, grid=True)
-plt.show()
+#plt.show()
 
 housing["rooms_per_house"] = housing["total_rooms"] / housing["households"]
 housing["room_ratio"] = housing["total_bedrooms"] / housing["total_rooms"]
@@ -134,9 +136,28 @@ housing = strat_train_set.drop("median_house_value", axis=1)
 housing_labels = strat_train_set["median_house_value"].copy()
 
 imputer = SimpleImputer(strategy="median")
+#imputer = SimpleImputer(strategy="mean")
+#imputer = SimpleImputer(strategy="most_frequent")
 
 housing_num = housing.select_dtypes(include=[np.number])
-imputer.fit(housing_num)
+#imputer.fit(housing_num)
 
-print(imputer.statistics_)
-print(housing_num.median().values)
+#print(imputer.statistics_)
+#print(housing_num.median().values)
+
+#x = imputer.transform(housing_num)
+X = imputer.fit_transform(housing_num)
+
+housing_tr = pd.DataFrame(X, columns=housing_num.columns, index=housing_num.index)
+
+#Encode Text Data to Numbers
+housing_cat = housing[["ocean_proximity"]]
+ordinal_encoder = OrdinalEncoder()
+housing_cat_encoded = ordinal_encoder.fit_transform(housing_cat)
+housing_cat_encoded[:8]
+#print(housing_cat_encoded[:8])
+
+print(ordinal_encoder.categories_)
+
+cat_encoder = OneHotEncoder()
+housing_cat_1hot = cat_encoder.fit_transform(housing_cat)
