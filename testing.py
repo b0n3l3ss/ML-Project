@@ -1,7 +1,10 @@
 import math
 import requests
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from io import StringIO
+from statistics import mean
 
 def squareNumber(num): 
     return num * num
@@ -121,13 +124,93 @@ asian_applicants = dataFrame.loc[dataFrame['derived_race'] == 'Asian']
 applicants_75_and_older = dataFrame.loc[dataFrame['applicant_age'] == ('>74')]
 
 
-print(female_applicatns)
+#print(female_applicatns)
 #print(asian_applicants)
 #print(applicants_75_and_older)
 
 female_applicatns['interest_first_year'] = female_applicatns['property_value'] * female_applicatns['interest_rate'] / 100
 
-print(female_applicatns)
+#print(female_applicatns)
 
 
 #print(dataFrame.info())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+fam = [1.0, 2.0, 4.0, 6.0, 4.0, 2.0, 4.9, 7.0]
+#print(fam[:2])
+#print(fam[2:])
+
+fam += ['jonas']
+del fam[0]
+print(fam)
+fake_fam = list(fam)
+fake_fam[0] = 1
+del fam[-1]
+
+np_fam = np.array(fam)
+
+#print(np_fam)
+#print(type(np_fam))
+
+
+arr1 = [1,3,5,6,73,3]
+arr2 = [2,3]
+val = 2
+
+np_arr1 = np.array(arr1)
+np_arr2 = np.array(arr2)
+
+np_arr3 = np_arr1 + val
+print(np_arr3)
+np_arr3 = np.append(np_arr3, -15)
+
+print(np_arr3)
+
+year = [1950, 1970, 1990, 2010]
+pop = [2.519, 3.692, 5.263, 6.972] 
+year = [1800, 1850, 1900] + year
+pop = [2.538, 2.57, 2.62] + pop
+np_year_and_pop = np.array([year, pop])
+#plt.plot(np_year_and_pop[0,:], np_year_and_pop[1,:])
+#plt.xlabel('Year')
+#plt.ylabel('Population in Billions')
+#plt.yticks([0,2,4,6,8,10], ['0B', '2B', '4B', '6B', '8B', '10B'])
+#plt.title('World Population Projections')
+#plt.show()
+#
+#
+#values = [0,0.6,1.4,1.6,2.2,2.5,2.6,3.2,3.5,3.9,4.2,6]
+#plt.hist(values, bins=10)
+#plt.xlabel('The Given Values Into Ten Bins')
+#plt.ylabel('Number of Occurences')
+#plt.title('Histogram of Given Values')
+#plt.show()
+
+
+#brics = pd.read_csv('brics.csv')
+#print(brics)
+#print(type(brics))
+#s_brics = brics.iloc[[1], [1]]
+
+#print(s_brics)
+#print(type(s_brics))
+print(dataFrame.info())
+print(dataFrame.head())
+print(dataFrame.groupby(['derived_sex']))['loan_amount'].mean()

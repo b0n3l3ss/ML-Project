@@ -18,6 +18,8 @@ from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+from sklearn.compose import TransformedTargetRegressor
 
 def load_housing_data():
     tarball_path = Path("datasets/housing.tgz")
@@ -29,6 +31,10 @@ def load_housing_data():
             housing_tarball.extractall(path="datasets")
     return pd.read_csv(Path("datasets/housing/housing.csv"))
 
+##This function takes in the Data Frame and returns 2 Data Frames (test and train) using random permutation
+##The problem with this method is that it doesn't allow for regularity, even if the random seed is constant, as 
+##when data is added to the original data frame, you will get vastly different test and train splits, leading to 
+##data snooping bias.
 def shuffel_and_split_data(data, test_ratio):
     shuffled_indices = np.random.permutation(len(data))
     test_set_size = int(len(data) * test_ratio)
@@ -36,9 +42,11 @@ def shuffel_and_split_data(data, test_ratio):
     train_indices = shuffled_indices[test_set_size:]
     return data.iloc[train_indices], data.iloc[test_indices]
 
+##Tests to see if the hash of the ID is within the range to be in the test set range
 def is_id_in_test_set(identifier, test_ratio):
     return crc32(np.int64(identifier)) < test_ratio * 2**32
 
+##Returns the two Data Frames as test and train Data Frames using the ID hash method
 def split_data_with_id_hash(data, test_ratio, id_column):
     ids = data[id_column]
     in_test_set = ids.apply(lambda id_: is_id_in_test_set(id_,test_ratio))
@@ -46,16 +54,13 @@ def split_data_with_id_hash(data, test_ratio, id_column):
     
 housing = load_housing_data()
 
+##Preliminary information about inital data
 print(housing.head())
 print(housing.info())
 print(housing["ocean_proximity"].value_counts())
 
-
-
 train_set, test_set = shuffel_and_split_data(housing, 0.2)
 
-print(len(train_set))
-print(len(test_set))
 
 #housing.hist(bins=50, figsize=(12,8))
 #plt.show()
@@ -132,7 +137,7 @@ housing["room_ratio"] = housing["total_bedrooms"] / housing["total_rooms"]
 housing["people_per_house"] = housing["population"] / housing["households"]
 
 corr_matrix = housing.corr(numeric_only=True)
-print(corr_matrix["median_house_value"].sort_values(ascending=False))
+#print(corr_matrix["median_house_value"].sort_values(ascending=False))
 
 housing = strat_train_set.drop("median_house_value", axis=1)
 housing_labels = strat_train_set["median_house_value"].copy()
@@ -159,7 +164,7 @@ housing_cat_encoded = ordinal_encoder.fit_transform(housing_cat)
 housing_cat_encoded[:8]
 #print(housing_cat_encoded[:8])
 
-print(ordinal_encoder.categories_)
+#print(ordinal_encoder.categories_)
 
 cat_encoder = OneHotEncoder()
 housing_cat_1hot = cat_encoder.fit_transform(housing_cat)
@@ -172,3 +177,16 @@ housing_num_min_max_scaled = min_max_scalar.fit_transform(housing_num)
 std_scalar = StandardScaler()
 housing_num_std_scaled = std_scalar.fit_transform(housing_num)
 
+target_scalar = StandardScaler()
+scaled_labels = target_scalar.fit_transform(housing_labels.to_frame())
+
+model = LinearRegression()
+model.fit(housing[["median_income"]], scaled_labels)
+some_new_data = housing[["median_income"]].iloc[:5]
+
+scaled_predictions = model.predict(some_new_data)
+predictions = target_scalar.inverse_transform(scaled_predictions)
+
+model = TransformedTargetRegressor(LinearRegression(), transformer=StandardScaler())
+model.fit(housing[["median_income"]], housing_labels)
+predictions = model.predict(some_new_data)
