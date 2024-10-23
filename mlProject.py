@@ -61,34 +61,27 @@ print(housing["ocean_proximity"].value_counts())
 
 train_set, test_set = shuffel_and_split_data(housing, 0.2)
 
-
+##Histogram for all data columns
 #housing.hist(bins=50, figsize=(12,8))
 #plt.show()
 
+##Using hash method to split data into test and train sets
 #housing_with_id = housing.reset_index()
 #train_set, test_set = split_data_with_id_hash(housing_with_id, 0.2, "index")
 
+##A different id is created using the latitude and longitude since it doesn't make
+##sense for a data entry to have changing and distinct longitude and latitude
 #housing_with_id["id"] = housing["longitude"] * 1000 + housing["latitude"]
 #train_set, test_set = split_data_with_id_hash(housing_with_id, 0.2, "id")
-#print(test_set.head())
-#print(train_set.head())
-
-#print(train_set.info())
-#print(test_set.info())
 
 train_set, test_set = train_test_split(housing, test_size = 0.2, random_state=42)
 
-#print(test_set.head())
-#print(train_set.head())
-
-#print(train_set.info())
-#print(test_set.info())
-
+##Sometimes, there are important data columns that must be represented well in the training set,
+##thus, we can use pd.cut() to make a new column using bins and labels
 housing["income_cat"] = pd.cut(housing["median_income"], bins=[0, 1.5, 3, 4.5, 6, np.inf], labels=[1,2,3,4,5])
 
-#print(housing.head())
-#print(housing.info())
-
+##This shows us the income categories as well as a histogram to see what the 
+##distribution looks like for the income category column
 #print(housing["income_cat"].value_counts())
 
 #housing["income_cat"].value_counts().plot.bar(rot=0, grid=True)
@@ -96,6 +89,7 @@ housing["income_cat"] = pd.cut(housing["median_income"], bins=[0, 1.5, 3, 4.5, 6
 #plt.ylabel("Number of Districts")
 #plt.show()
 
+##The long way of stratified split using housing category
 #splitter = StratifiedShuffleSplit(n_splits=10, test_size=0.2, random_state=42)
 strat_splits = []
 #for train_index, test_index in splitter.split(housing, housing["income_cat"]):
@@ -105,14 +99,11 @@ strat_splits = []
 #
 #strat_train_set_n, strat_test_set_n = strat_splits[0]
 
+##The short way of stratified split using house_category
 strat_train_set, strat_test_set = train_test_split(housing, test_size=0.2, stratify=housing["income_cat"], random_state=42)
 
-#print(strat_test_set["income_cat"].value_counts() / len(strat_test_set))
-#print(len(strat_test_set))
-#print(strat_test_set["income_cat"].value_counts())
 
-#housing = train_set.copy()
-#
+##Scatter plot to show us a longitude vs lattitude view of our data points
 #housing.plot(kind="scatter", x="longitude", y="latitude", grid=True, alpha=0.2)
 #plt.show()
 #
@@ -122,9 +113,12 @@ strat_train_set, strat_test_set = train_test_split(housing, test_size=0.2, strat
 #             legend=True, sharex=False, figsize=(10, 7))
 #plt.show()
 
+##Corrilation matrix tells us how close each data column is linearly related to 
+##the specified column.  In this case, we look at the corrilation between 
 corr_matrix = housing.corr(numeric_only=True)
 #print(corr_matrix["median_house_value"].sort_values(ascending=False))
 
+##A quick way to make graphs against the specified columns
 attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
 scatter_matrix(housing[attributes], figsize=(9,6))
 #plt.show()
@@ -132,6 +126,7 @@ scatter_matrix(housing[attributes], figsize=(9,6))
 housing.plot(kind="scatter", x="median_income", y="median_house_value", alpha=0.1, grid=True)
 #plt.show()
 
+##
 housing["rooms_per_house"] = housing["total_rooms"] / housing["households"]
 housing["room_ratio"] = housing["total_bedrooms"] / housing["total_rooms"]
 housing["people_per_house"] = housing["population"] / housing["households"]
